@@ -1,0 +1,33 @@
+# Copyright 2020 Adobe
+# All Rights Reserved.
+#
+# NOTICE: Adobe permits you to use, modify, and distribute this file in
+# accordance with the terms of the Adobe license agreement accompanying
+# it. If you have received this file from a source other than Adobe,
+# then your use, modification, or distribution of it requires the prior
+# written permission of Adobe.
+
+apiVersion: v1
+name: kratos-operator
+description: Kratos - Horizontal Pod Autoscaler
+
+type: application
+
+# This is the chart version. This version number should be incremented each time you make changes
+# to the chart and its templates, including the app version.
+version: 0.0.1
+
+# This is the version number of the application being deployed. This version number should be
+# incremented each time you make changes to the application.
+appVersion: 0.0.1
+
+maintainers:
+  - name: alexander-falca
+
+home: https://github.com/adobe/kratos
+sources:
+  - https://github.com/adobe/kratos
+
+keywords:
+  - scaling
+  - autoscaling
