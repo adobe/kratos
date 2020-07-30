@@ -1,0 +1,42 @@
+# Copyright 2020 Adobe
+# All Rights Reserved.
+#
+# NOTICE: Adobe permits you to use, modify, and distribute this file in
+# accordance with the terms of the Adobe license agreement accompanying
+# it. If you have received this file from a source other than Adobe,
+# then your use, modification, or distribution of it requires the prior
+# written permission of Adobe.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "kratos-operator.fullname" . }}
+  namespace: {{ template "kratos-operator.namespace" . }}
+  labels:
+    app: {{ template "kratos-operator.name" . }}
+{{ include "kratos-operator.labels" . | indent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "kratos-operator.name" . }}
+      release: {{ $.Release.Name | quote }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ template "kratos-operator.name" . }}
+{{ include "kratos-operator.labels" . | indent 8 }}
+    spec:
+      containers:
+        - command:
+            - /manager
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          name: manager
+          resources:
+            limits:
+              cpu: 100m
+              memory: 30Mi
+            requests:
+              cpu: 100m
+              memory: 20Mi
+      terminationGracePeriodSeconds: 10
