@@ -24,6 +24,8 @@ Contributions are welcomed! Read the [Contributing Guide](./.github/CONTRIBUTING
 * Golang 1.14
 * Docker
 * [mage](https://magefile.org/)
+* [Operator SDK](https://sdk.operatorframework.io/docs/installation/install-operator-sdk/)
+* [Kubebuilder](https://book.kubebuilder.io/quick-start.html#installation)
 
 ### Building
 The operator uses [mage](https://magefile.org/) for its build process. Run `mage -l` to see available targets

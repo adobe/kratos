@@ -10,43 +10,76 @@ then your use, modification, or distribution of it requires the prior
 written permission of Adobe.
 
 */
-
 package controller
 
 import (
 	"context"
+	"time"
 
+	"github.com/adobe/kratos/pkg/api/common"
+	scalingv1alpha1 "github.com/adobe/kratos/pkg/api/v1alpha1"
 	"github.com/go-logr/logr"
-	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/client-go/util/workqueue"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
-	scalingv1alpha1 "github.com/adobe/kratos/pkg/api/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
 )
 
 // KratosReconciler reconciles a Kratos object
 type KratosReconciler struct {
 	client.Client
-	Log    logr.Logger
-	Scheme *runtime.Scheme
+	log           logr.Logger
+	queue         workqueue.RateLimitingInterface
+	scalingWorker *Worker
+	stopChan      chan struct{}
+}
+
+func NewKratosReconciler(params *common.KratosParameters) (*KratosReconciler, error) {
+	scalingWorker, err := NewWorker(params)
+
+	if err != nil {
+		return nil, err
+	}
+
+	kratosReconciler := &KratosReconciler{
+		Client:        params.Client,
+		log:           ctrl.Log.WithName("reconciler"),
+		queue:         workqueue.NewNamedRateLimitingQueue(NewFixedItemIntervalRateLimiter(10*time.Second), "kratosautoscaler"),
+		scalingWorker: scalingWorker,
+		stopChan:      make(chan struct{}),
+	}
+	go kratosReconciler.scalingWorker.run(1, kratosReconciler.stopChan)
+	return kratosReconciler, nil
 }
 
 // +kubebuilder:rbac:groups=scaling.core.adobe.com,resources=kratos,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=scaling.core.adobe.com,resources=kratos/status,verbs=get;update;patch
-
 func (r *KratosReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	_ = context.Background()
-	_ = r.Log.WithValues("kratos", req.NamespacedName)
+	name := req.NamespacedName
+	log := r.log.WithValues("name", name)
 
-	// your logic here
 	configMap := &corev1.ConfigMap{}
 
-	err := r.Get(context.Background(), req.NamespacedName, configMap)
+	err := r.Get(context.TODO(), req.NamespacedName, configMap)
 	if err != nil {
-		r.Log.Info("Deleted already")
+		if errors.IsNotFound(err) {
+			log.Info("ConfigMap not found. Ignoring since object must be deleted.", "item", req.NamespacedName)
+			r.scalingWorker.removeItem(req.NamespacedName)
+			return ctrl.Result{}, nil
+		}
+		log.Error(err, "Failed to get ConfigMap")
+		return ctrl.Result{}, err
 	}
-	r.Log.Info(configMap.ResourceVersion)
+
+	if _, found := configMap.Data["kratosSpec"]; found {
+		log.Info("ConfigMap has key 'kratosSpec', adding to queue.")
+		r.scalingWorker.addItem(req.NamespacedName)
+	} else {
+		log.Info("ConfigMap missing 'kratosSpec', skipping.")
+		r.scalingWorker.removeItem(req.NamespacedName)
+	}
 
 	return ctrl.Result{}, nil
 }

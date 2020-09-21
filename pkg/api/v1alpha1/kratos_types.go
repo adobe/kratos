@@ -27,18 +27,41 @@ type KratosSpec struct {
 
 	// minReplicas is the lower limit for the number of replicas to which the autoscaler
 	// can scale down.  It defaults to 1 pod.
-	MinReplicas *int32 `json:"minReplicas,omitempty" protobuf:"varint,3,opt,name=minReplicas"`
+	MinReplicas int32 `json:"minReplicas,omitempty" protobuf:"varint,3,opt,name=minReplicas"`
 
 	// upper limit for the number of pods that can be set by the autoscaler; cannot be smaller than MinReplicas.
 	MaxReplicas int32 `json:"maxReplicas" protobuf:"varint,4,opt,name=maxReplicas"`
 
-	Metrics []ScaleMetric `json:"metrics,omitempty" protobuf:"bytes,4,rep,name=metrics"`
+	// stabilization window in seconds
+	StabilizationWindowSeconds int32 `json:"stabilizationWindowSeconds" protobuf:"varint,5,opt,name=stabilizationWindowSeconds"`
+
+	// Metrics to use for scaling
+	Metrics []ScaleMetric `json:"metrics,omitempty" protobuf:"bytes,6,rep,name=metrics"`
+
+	// Up or Down scaling behavior
+	Behavior *ScaleBehavior `json:"behavior,omitempty" protobuf:"bytes,7,opt,name=behavior"`
 }
 
 // KratosStatus defines the observed state of Kratos
 type KratosStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+
+	//Time when stabilization window ends
+	StabilizationEndTime *metav1.Time `json:"stabilizationEndTime,omitempty" protobuf:"bytes,1,opt,name=stabilizationEndTime"`
+
+	//current target replicas
+	CurrentReplicas int32 `json:"currentReplicas" protobuf:"varint,2,opt,name=currentReplicas"`
+
+	//desired number of replicas for target
+	DesiredReplicas int32 `json:"desiredReplicas" protobuf:"varint,3,opt,name=desiredReplicas"`
+
+	//scale recommendations
+	Recommendations []Recommendation `json:"recommendations" protobuf:"varint,4,opt,name=recommendations"`
+
+	//scale up events
+	ScaleUpEvents []ScaleChangeEvent `json:"scaleUpEvents" protobuf:"varint,5,opt,name=scaleUpEvents"`
+
+	//scale down events
+	ScaleDownEvents []ScaleChangeEvent `json:"scaleDownEvents" protobuf:"varint,6,opt,name=scaleDownEvents"`
 }
 
 // ScalingTargetReference identifies target to scale
@@ -176,7 +199,7 @@ const (
 	UtilizationMetricType MetricTargetType = "Utilization"
 	// ValueMetricType declares a MetricTarget is a raw value
 	ValueMetricType MetricTargetType = "Value"
-	// AverageValueMetricType declares a MetricTarget is an
+	// AverageValueMetricType declares a MetricTarget is an average across all relevant pods (as a quantity)
 	AverageValueMetricType MetricTargetType = "AverageValue"
 )
 
@@ -212,15 +235,15 @@ type ScaleRules struct {
 	// - For scale up: 0 (i.e. no stabilization is done).
 	// - For scale down: 300 (i.e. the stabilization window is 300 seconds long).
 	// +optional
-	StabilizationWindowSeconds *int32 `json:"stabilizationWindowSeconds" protobuf:"varint,3,opt,name=stabilizationWindowSeconds"`
+	StabilizationWindowSeconds int32 `json:"stabilizationWindowSeconds" protobuf:"varint,1,opt,name=stabilizationWindowSeconds"`
 	// selectPolicy is used to specify which policy should be used.
 	// If not set, the default value MaxPolicySelect is used.
 	// +optional
-	SelectPolicy *ScalingPolicySelect `json:"selectPolicy,omitempty" protobuf:"bytes,1,opt,name=selectPolicy"`
+	SelectPolicy ScalingPolicySelect `json:"selectPolicy,omitempty" protobuf:"bytes,2,opt,name=selectPolicy"`
 	// policies is a list of potential scaling polices which can be used during scaling.
 	// At least one policy must be specified, otherwise the HPAScalingRules will be discarded as invalid
 	// +optional
-	Policies []ScalingPolicy `json:"policies,omitempty" protobuf:"bytes,2,rep,name=policies"`
+	Policies []ScalingPolicy `json:"policies,omitempty" protobuf:"bytes,3,rep,name=policies"`
 }
 
 // ScalingPolicySelect is used to specify which policy should be used while scaling in a certain direction
@@ -256,6 +279,22 @@ type ScalingPolicy struct {
 	// PeriodSeconds specifies the window of time for which the policy should hold true.
 	// PeriodSeconds must be greater than zero and less than or equal to 1800 (30 min).
 	PeriodSeconds int32 `json:"periodSeconds" protobuf:"varint,3,opt,name=periodSeconds"`
+}
+
+// Recommendation details
+type Recommendation struct {
+	// timestamp of the recommendation
+	Timestamp metav1.Time `json:"timestamp" protobuf:"varint,1,opt,name=timestamp"`
+	// recommended replicas
+	Replicas int32 `json:"replicas" protobuf:"varint,2,opt,name=replicas"`
+}
+
+// ScaleChangeEvent holds timestamp and replica delta
+type ScaleChangeEvent struct {
+	// timestamp of the event
+	Timestamp metav1.Time `json:"timestamp" protobuf:"varint,1,opt,name=timestamp"`
+	// change of replicas
+	ReplicaChange int32 `json:"replicaChange" protobuf:"varint,2,opt,name=replicaChange"`
 }
 
 // +kubebuilder:object:root=true
