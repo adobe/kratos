@@ -18,7 +18,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 
-	"github.com/adobe/kratos/pkg/api/v1alpha1"
+	"github.com/adobe/kratos/api/v1alpha1"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/prometheus/common/model"

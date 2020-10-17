@@ -17,8 +17,8 @@ import (
 	"math"
 	"time"
 
-	"github.com/adobe/kratos/pkg/api/common"
-	"github.com/adobe/kratos/pkg/api/v1alpha1"
+	"github.com/adobe/kratos/api/common"
+	"github.com/adobe/kratos/api/v1alpha1"
 )
 
 const (

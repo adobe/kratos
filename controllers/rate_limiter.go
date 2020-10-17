@@ -11,7 +11,7 @@ written permission of Adobe.
 
 */
 
-package controller
+package controllers
 
 import (
 	"time"

@@ -14,8 +14,8 @@ written permission of Adobe.
 package replicas
 
 import (
-	"github.com/adobe/kratos/pkg/api/v1alpha1"
-	"github.com/adobe/kratos/pkg/metrics"
+	"github.com/adobe/kratos/api/v1alpha1"
+	"github.com/adobe/kratos/metrics"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"k8s.io/apimachinery/pkg/api/resource"

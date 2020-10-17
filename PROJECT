@@ -1,0 +1,11 @@
+domain: core.adobe.com
+layout: go.kubebuilder.io/v2
+projectName: kratos
+repo: github.com/adobe/kratos
+resources:
+- group: scaling
+  kind: Kratos
+  version: v1alpha1
+version: 3-alpha
+plugins:
+  go.sdk.operatorframework.io/v2-alpha: {}

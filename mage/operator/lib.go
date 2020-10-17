@@ -36,15 +36,16 @@ func Clean() {
 func Build() {
 	mg.SerialDeps(Clean, GenerateDeepCopy, Vet, Fmt)
 	fmt.Println("- Build")
-	err := sh.RunV("go", "build", "-o", "build/bin/manager", "cmd/manager/main.go")
+	err := sh.RunV("go", "build", "-o", "bin/manager", "main.go")
 	utils.PanicOnError(err)
 }
 
 // Runs operator agains configured kube config
 func Run() {
+	namespaces := os.Getenv("KRATOS_NAMESPACES")
 	mg.SerialDeps(Clean, GenerateDeepCopy, Vet, Fmt, GenerateCrds)
-	fmt.Println("- Running operator")
-	err := sh.RunV("go", "run", "cmd/manager/main.go")
+	fmt.Println("- Running operator, namespaces: ", namespaces)
+	err := sh.RunV("go", "run", "main.go", "--namespaces="+namespaces)
 	utils.PanicOnError(err)
 }
 
@@ -62,7 +63,7 @@ func Vet() {
 	fmt.Println("- Vet")
 	path, err := os.Getwd()
 	utils.PanicOnError(err)
-	err = sh.RunV("go", "vet", path+"/pkg...")
+	err = sh.RunV("go", "vet", path+"/...")
 	utils.PanicOnError(err)
 }
 
@@ -86,7 +87,7 @@ func GenerateCrds() {
 func Test() {
 	mg.Deps(Build)
 	fmt.Println("- Running tests")
-	err := sh.RunV("go", "test", "./pkg/...", "-coverprofile", "cover.out", "-test.v", "-ginkgo.v")
+	err := sh.RunV("go", "test", "./...", "-coverprofile", "cover.out", "-test.v", "-ginkgo.v")
 	utils.PanicOnError(err)
 
 }

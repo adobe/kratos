@@ -11,7 +11,7 @@ written permission of Adobe.
 
 */
 
-package controller
+package controllers
 
 import (
 	"path/filepath"
@@ -27,7 +27,7 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	scalingv1alpha1 "github.com/adobe/kratos/pkg/api/v1alpha1"
+	scalingv1alpha1 "github.com/adobe/kratos/api/v1alpha1"
 	// +kubebuilder:scaffold:imports
 )
 

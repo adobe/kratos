@@ -16,8 +16,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/adobe/kratos/pkg/api/common"
-	"github.com/adobe/kratos/pkg/api/v1alpha1"
+	"github.com/adobe/kratos/api/common"
+	"github.com/adobe/kratos/api/v1alpha1"
 	"github.com/go-logr/logr"
 	autoscalingv1 "k8s.io/api/autoscaling/v1"
 	"k8s.io/apimachinery/pkg/api/meta"

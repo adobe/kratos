@@ -10,14 +10,14 @@ then your use, modification, or distribution of it requires the prior
 written permission of Adobe.
 
 */
-package controller
+package controllers
 
 import (
 	"context"
 	"time"
 
-	"github.com/adobe/kratos/pkg/api/common"
-	scalingv1alpha1 "github.com/adobe/kratos/pkg/api/v1alpha1"
+	"github.com/adobe/kratos/api/common"
+	scalingv1alpha1 "github.com/adobe/kratos/api/v1alpha1"
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/client-go/util/workqueue"

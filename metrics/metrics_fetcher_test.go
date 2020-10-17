@@ -14,7 +14,7 @@ written permission of Adobe.
 package metrics
 
 import (
-	"github.com/adobe/kratos/pkg/api/v1alpha1"
+	"github.com/adobe/kratos/api/v1alpha1"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

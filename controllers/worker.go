@@ -11,15 +11,15 @@ written permission of Adobe.
 
 */
 
-package controller
+package controllers
 
 import (
 	"context"
 	"fmt"
 	"time"
 
-	"github.com/adobe/kratos/pkg/api/common"
-	"github.com/adobe/kratos/pkg/scale"
+	"github.com/adobe/kratos/api/common"
+	"github.com/adobe/kratos/scale"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"

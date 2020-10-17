@@ -17,7 +17,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/adobe/kratos/pkg/api/v1alpha1"
+	"github.com/adobe/kratos/api/v1alpha1"
 )
 
 type MetricValue struct {

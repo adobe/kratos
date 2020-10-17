@@ -20,8 +20,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/adobe/kratos/pkg/api/common"
-	"github.com/adobe/kratos/pkg/controller"
+	"github.com/adobe/kratos/api/common"
+	"github.com/adobe/kratos/controllers"
 	"go.uber.org/zap/zapcore"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
@@ -31,7 +31,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	scalingv1alpha1 "github.com/adobe/kratos/pkg/api/v1alpha1"
+	scalingv1alpha1 "github.com/adobe/kratos/api/v1alpha1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	// +kubebuilder:scaffold:imports
@@ -105,6 +105,7 @@ func main() {
 	ctrl.SetLogger(zap.New(zap.UseDevMode(true), zap.Level(zapcore.DebugLevel)))
 
 	namespaces := strings.Split(namespacesList, ",")
+	setupLog.Info("Listening for namespaces", "namespaces", namespaces)
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:             scheme,
@@ -129,7 +130,7 @@ func main() {
 		StabilizationWindowSeconds: defaultStabilizationWindowSeconds,
 	}
 
-	reconciler, err := controller.NewKratosReconciler(params)
+	reconciler, err := controllers.NewKratosReconciler(params)
 
 	if err != nil {
 		setupLog.Error(err, "unable to create reconciler")

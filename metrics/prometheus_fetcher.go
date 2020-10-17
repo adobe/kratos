@@ -20,8 +20,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/adobe/kratos/pkg/api/v1alpha1"
-	"github.com/adobe/kratos/pkg/cache"
+	"github.com/adobe/kratos/api/v1alpha1"
+	"github.com/adobe/kratos/cache"
 	"github.com/go-logr/logr"
 	"github.com/prometheus/client_golang/api"
 	"github.com/prometheus/client_golang/api/prometheus/v1"

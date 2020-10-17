@@ -13,7 +13,7 @@ written permission of Adobe.
 
 package normalizer
 
-import "github.com/adobe/kratos/pkg/api/v1alpha1"
+import "github.com/adobe/kratos/api/v1alpha1"
 
 type normalizer interface {
 	normalizeReplicas(spec *v1alpha1.KratosSpec, status *v1alpha1.KratosStatus, desiredReplicas int32) int32

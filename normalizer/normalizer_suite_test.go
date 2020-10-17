@@ -14,12 +14,13 @@ written permission of Adobe.
 package normalizer
 
 import (
-	"github.com/adobe/kratos/pkg/api/v1alpha1"
+	"testing"
+
+	"github.com/adobe/kratos/api/v1alpha1"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/envtest/printer"
-	"testing"
 )
 
 func TestReplicas(t *testing.T) {
