@@ -6,20 +6,19 @@
 // it. If you have received this file from a source other than Adobe,
 // then your use, modification, or distribution of it requires the prior
 // written permission of Adobe.
-
+//
 //+build mage
 
 package main
 
 import (
-	"github.com/adobe/kratos/mage/helm"
 	"github.com/magefile/mage/mg"
 
 	// mage:import docker
 	"github.com/adobe/kratos/mage/docker"
 
 	// mage:import helm
-	_ "github.com/adobe/kratos/mage/helm"
+	"github.com/adobe/kratos/mage/helm"
 
 	// mage:import operator
 	"github.com/adobe/kratos/mage/operator"
@@ -27,6 +26,7 @@ import (
 
 // Cleans project
 func Clean() {
+	//mg.Deps(operator.Clean)
 	mg.Deps(operator.Clean, helm.Clean)
 }
 

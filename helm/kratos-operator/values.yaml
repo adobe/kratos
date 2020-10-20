@@ -16,3 +16,9 @@ commonLabels: {}
 image:
   repository: adobe/kratos
   tag: v0.0.1
+
+commandLineArgs:
+  metrics-addr: ":8080"
+  namespaces: ""
+  default-prometheus-url: ""
+  stabilization-window-seconds: ""

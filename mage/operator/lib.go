@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	controllerGen = "sigs.k8s.io/controller-tools/cmd/controller-gen@v0.3.0"
+	controllerGen = "sigs.k8s.io/controller-tools/cmd/controller-gen@v0.4.0"
 	buildDir      = "build/bin"
 )
 
@@ -36,15 +36,16 @@ func Clean() {
 func Build() {
 	mg.SerialDeps(Clean, GenerateDeepCopy, Vet, Fmt)
 	fmt.Println("- Build")
-	err := sh.RunV("go", "build", "-o", "build/bin/manager", "cmd/manager/main.go")
+	err := sh.RunV("go", "build", "-o", "bin/manager", "main.go")
 	utils.PanicOnError(err)
 }
 
 // Runs operator agains configured kube config
 func Run() {
+	namespaces := os.Getenv("KRATOS_NAMESPACES")
 	mg.SerialDeps(Clean, GenerateDeepCopy, Vet, Fmt, GenerateCrds)
-	fmt.Println("- Running operator")
-	err := sh.RunV("go", "run", "cmd/manager/main.go")
+	fmt.Println("- Running operator, namespaces: ", namespaces)
+	err := sh.RunV("go", "run", "main.go", "--namespaces="+namespaces)
 	utils.PanicOnError(err)
 }
 
@@ -79,6 +80,21 @@ func GenerateCrds() {
 	mg.Deps(installControllerGen)
 	fmt.Println("- Generating CRDs")
 	err := sh.RunV("controller-gen", "crd:trivialVersions=true", "paths=\"./...\"", "output:crd:artifacts:config=config/crd")
+	utils.PanicOnError(err)
+}
+
+// Run operator tests
+func Test() {
+	mg.Deps(Build)
+	fmt.Println("- Running tests")
+	err := sh.RunV("go", "test", "./...", "-coverprofile", "cover.out", "-test.v", "-ginkgo.v")
+	utils.PanicOnError(err)
+
+}
+
+// Shows test coverage report
+func CoverageReport() {
+	err := sh.RunV("go", "tool", "cover", "-func", "cover.out")
 	utils.PanicOnError(err)
 }
 
