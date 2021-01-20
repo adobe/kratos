@@ -59,20 +59,23 @@ func (rc *ReplicaCalculator) calculateValue(currentReplicas int32, metricTarget 
 	return replicaCount, nil
 }
 
-func (rc *ReplicaCalculator) calculateAverageValue(currentReplicas int32, metricTarget v1alpha1.MetricTarget, metricValues []metrics.MetricValue) (int32, error) {
+func (rc *ReplicaCalculator) calculateAverageValue(currentReplicas int32, metricTarget v1alpha1.MetricTarget, metricValues []metrics.MetricValue) (replicaCount int32, err error) {
 	utilization := int64(0)
 	for _, metricValue := range metricValues {
 		utilization = utilization + metricValue.Value
 	}
 
-	usageRatio := float64(utilization) / (float64(metricTarget.AverageValue.MilliValue()) * float64(currentReplicas))
-	if math.Abs(1.0-usageRatio) <= rc.tolerance {
-		return 0, nil
-	}
-
 	// update number of replicas if the change is large enough
-	replicaCount := int32(math.Ceil(float64(utilization) / float64(metricTarget.AverageValue.MilliValue())))
-	return replicaCount, nil
+	if currentReplicas != 0 {
+		usageRatio := float64(utilization) / (float64(metricTarget.AverageValue.Value()) * float64(currentReplicas))
+		if math.Abs(1.0-usageRatio) <= rc.tolerance {
+			// return the current replicas if the change would be too small
+			return currentReplicas, nil
+		}
+	}
+	replicaCount = int32(math.Ceil(float64(utilization) / float64(metricTarget.AverageValue.Value())))
+
+	return replicaCount, err
 }
 
 func (rc *ReplicaCalculator) getUsageRatioReplicaCount(currentReplicas int32, usageRatio float64) (replicaCount int32, err error) {

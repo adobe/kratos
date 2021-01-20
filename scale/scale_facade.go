@@ -201,6 +201,8 @@ func (f *ScaleFacade) calculateMaxScaleReplicas(item *corev1.ConfigMap, currentR
 		}
 		replicaProposal, err := f.replicaCalculator.CalculateReplicas(currentReplicas, metric.Prometheus.Target, metricValues)
 
+		log.V(1).Info("metric values and replica proposal", "replicas", replicaProposal, "metrics", metricValues)
+
 		if err != nil {
 			log.Error(err, "error on calculating replicas proposal for metric", "metric", metric)
 			f.eventRecorder.Eventf(item, corev1.EventTypeWarning, "CalculateMetricReplicasError", "error on calculating replicas proposal for metric: %v, error: %v", metric, err.Error())
