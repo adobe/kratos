@@ -2,8 +2,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   namespace: default
-  name: admin-pipeline
+  name: kratos-admin
 rules:
-- apiGroups: ["", "apps", "v1", "*"] # "" indicates the core API group
+- apiGroups: ["", "apps", "*"] # "" indicates the core API group
   resources: ["*"]
   verbs: ["*"]

@@ -6,7 +6,7 @@ metadata:
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
-  name: admin-pipeline
+  name: kratos-admin
 subjects:
 - kind: ServiceAccount
   name: default

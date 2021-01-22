@@ -3,12 +3,15 @@ kind: TestSuite
 commands:
 - command: kubectl apply -f config/crd/scaling.core.adobe.com_kratos.yaml
   namespaced: true
+- command: helm repo add vm https://victoriametrics.github.io/helm-charts
+  ignoreFailure: true
+- command: helm repo update
 - command: helm install test-vm vm/victoria-metrics-single
   timeout: 120
   namespaced: true
-- command: mage operator:run
+- command: go run main.go --namespaces=default --metrics-addr=:8081
   background: true
-  skipLogOutput: true
+  skipLogOutput: false
   timeout: 120
 testDirs:
 - tests/integration
