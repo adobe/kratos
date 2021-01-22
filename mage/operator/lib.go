@@ -22,7 +22,7 @@ import (
 )
 
 const (
-	controllerGen = "sigs.k8s.io/controller-tools/cmd/controller-gen@v0.6.1"
+	controllerGen = "sigs.k8s.io/controller-tools/cmd/controller-gen@v0.6.3"
 	buildDir      = "build/bin"
 )
 

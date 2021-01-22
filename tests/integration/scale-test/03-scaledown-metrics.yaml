@@ -1,0 +1,24 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+- script: sleep 10
+- script: curl -s -d 'mm_lag{test_label="integration_test"} 1000' -X POST 'http://localhost:8428/api/v1/import/prometheus'
+  timeout: 10
+- script: sleep 10
+- script: curl -s 'http://localhost:8428/api/v1/query?query=ceil(rate(mm_lag[1m]))'
+- script: curl -s -d 'mm_lag{test_label="integration_test"} 0' -X POST 'http://localhost:8428/api/v1/import/prometheus'
+  timeout: 10
+- script: sleep 10
+- script: curl -s 'http://localhost:8428/api/v1/query?query=ceil(rate(mm_lag[1m]))'
+- script: curl -s -d 'mm_lag{test_label="integration_test"} 0' -X POST 'http://localhost:8428/api/v1/import/prometheus'
+  timeout: 10
+- script: curl -s 'http://localhost:8428/api/v1/query?query=ceil(rate(mm_lag[1m]))'
+- script: curl -s -d 'mm_lag{test_label="integration_test"} 0' -X POST 'http://localhost:8428/api/v1/import/prometheus'
+  timeout: 10
+- script: sleep 10
+- script: curl -s 'http://localhost:8428/api/v1/query?query=ceil(rate(mm_lag[1m]))'
+- script: curl -s -d 'mm_lag{test_label="integration_test"} 0' -X POST 'http://localhost:8428/api/v1/import/prometheus'
+  timeout: 10
+- script: sleep 10
+- script: curl -s 'http://localhost:8428/api/v1/query?query=ceil(rate(mm_lag[1m]))'
+- script: sleep 10

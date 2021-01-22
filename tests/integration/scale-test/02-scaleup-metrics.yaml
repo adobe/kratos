@@ -1,0 +1,22 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestStep
+commands:
+- command: kubectl port-forward svc/test-vm-victoria-metrics-single-server 8428:8428
+  background: true
+  timeout: 600
+  skipLogOutput: true
+- script: sleep 10
+- script: curl -s -d 'mm_lag{test_label="integration_test"} 10000' -X POST 'http://localhost:8428/api/v1/import/prometheus'
+  timeout: 10
+  skipLogOutput: true
+- script: sleep 10
+- script: curl -s 'http://localhost:8428/api/v1/query?query=ceil(rate(mm_lag[1m]))'
+- script: curl -s -d 'mm_lag{test_label="integration_test"} 20000' -X POST 'http://localhost:8428/api/v1/import/prometheus'
+  timeout: 10
+- script: sleep 10
+- script: curl -s 'http://localhost:8428/api/v1/query?query=ceil(rate(mm_lag[1m]))'
+- script: curl -s -d 'mm_lag{test_label="integration_test"} 30000' -X POST 'http://localhost:8428/api/v1/import/prometheus'
+  timeout: 10
+- script: sleep 10
+- script: curl -s 'http://localhost:8428/api/v1/query?query=ceil(rate(mm_lag[1m]))'
+- script: sleep 10

@@ -1,0 +1,25 @@
+apiVersion: kuttl.dev/v1beta1
+kind: TestSuite
+commands:
+- command: kubectl apply -f config/crd/scaling.core.adobe.com_kratos.yaml
+  namespaced: true
+- command: helm install test-vm vm/victoria-metrics-single
+  timeout: 120
+  namespaced: true
+- command: mage operator:run
+  background: true
+  skipLogOutput: true
+  timeout: 120
+testDirs:
+- tests/integration
+startKIND: true
+kindNodeCache: true
+timeout: 120
+namespace: default
+crdDir: config/crd
+artifactsDir: tests/artifacts
+manifestDirs:
+- config/rbac
+- tests/integration/manifests
+reportFormat: JSON
+reportName: Integration-Test
