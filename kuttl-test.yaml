@@ -6,6 +6,7 @@ commands:
 - command: helm repo add vm https://victoriametrics.github.io/helm-charts
   ignoreFailure: true
 - command: helm repo update
+  ignoreFailure: true
 - command: helm install test-vm vm/victoria-metrics-single
   timeout: 120
   namespaced: true
