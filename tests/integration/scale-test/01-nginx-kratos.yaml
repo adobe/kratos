@@ -15,11 +15,11 @@ spec:
   metrics:
     - type: Prometheus
       prometheus:
-        metricQuery: ceil(avg(system_cpu_usage{app="nginx"}))
+        metricQuery: ceil(avg(avg_over_time(system_cpu_usage{app="nginx"}[10s])))
         prometheusEndpoint: "http://localhost:8428"
         target:
-          type: AverageValue
-          averageValue: 30
+          type: Value
+          value: 50
     - type: Prometheus
       prometheus:
         metricQuery: ceil(sum(rate(server_total_connections{app="nginx"}[1m])))
@@ -46,11 +46,11 @@ data:
     metrics:
       - type: Prometheus
         prometheus:
-          metricQuery: ceil(avg(system_cpu_usage{app="nginx"}))
+          metricQuery: ceil(avg(avg_over_time(system_cpu_usage{app="nginx"}[10s])))
           prometheusEndpoint: "http://localhost:8428"
           target:
-            type: AverageValue
-            averageValue: 30
+            type: Value
+            value: 50
       - type: Prometheus
         prometheus:
           metricQuery: ceil(sum(rate(server_total_connections{app="nginx"}[1m])))

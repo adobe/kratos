@@ -6,15 +6,15 @@ commands:
   timeout: 300
   skipLogOutput: true
 - script: sleep 5
-- script: curl -s -d 'system_cpu_usage{app="nginx"} 30' -X POST 'http://localhost:8428/api/v1/import/prometheus'
+- script: curl -s -d 'system_cpu_usage{app="nginx"} 60' -X POST 'http://localhost:8428/api/v1/import/prometheus'
 - script: curl -s -d 'server_total_connections{app="nginx",test="integration_test"} 400' -X POST 'http://localhost:8428/api/v1/import/prometheus'
 - script: sleep 10
-- script: curl -s -d 'system_cpu_usage{app="nginx"} 40' -X POST 'http://localhost:8428/api/v1/import/prometheus'
+- script: curl -s -d 'system_cpu_usage{app="nginx"} 50' -X POST 'http://localhost:8428/api/v1/import/prometheus'
 - script: curl -s -d 'server_total_connections{app="nginx",test="integration_test"} 800' -X POST 'http://localhost:8428/api/v1/import/prometheus'
 - script: sleep 10
-- script: curl -s -d 'system_cpu_usage{app="nginx"} 50' -X POST 'http://localhost:8428/api/v1/import/prometheus'
+- script: curl -s -d 'system_cpu_usage{app="nginx"} 40' -X POST 'http://localhost:8428/api/v1/import/prometheus'
 - script: curl -s -d 'server_total_connections{app="nginx",test="integration_test"} 1200' -X POST 'http://localhost:8428/api/v1/import/prometheus'
 - script: sleep 10
-- script: curl -s 'http://localhost:8428/api/v1/query?query=ceil(avg(system_cpu_usage\{app="nginx",test="integration_test"\}))'
+- script: curl -s 'http://localhost:8428/api/v1/query?query=ceil(avg_over_time(system_cpu_usage\{app="nginx",test="integration_test"\}[10s]))'
 - script: curl -s 'http://localhost:8428/api/v1/query?query=ceil(sum(rate(server_total_connections\{app="nginx",test="integration_test"\}[1m])))'
 - script: sleep 10
