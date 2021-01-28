@@ -2,23 +2,23 @@ apiVersion: kuttl.dev/v1beta1
 kind: TestStep
 commands:
 - script: sleep 10
-- script: curl -s -d 'mm_lag{test_label="integration_test"} 1000' -X POST 'http://localhost:8428/api/v1/import/prometheus'
-  timeout: 10
+- script: curl -s 'http://localhost:8428/api/v1/query?query=ceil(avg(system_cpu_usage\{app="nginx",test="integration_test"\}))'
+- script: curl -s 'http://localhost:8428/api/v1/query?query=ceil(sum(rate(server_total_connections\{app="nginx",test="integration_test"\}[1m])))'
+- script: curl -s -d 'system_cpu_usage{app="nginx",,test="integration_test"} 50' -X POST 'http://localhost:8428/api/v1/import/prometheus'
+- script: curl -s -d 'server_total_connections{app="nginx",test="integration_test"} 800' -X POST 'http://localhost:8428/api/v1/import/prometheus'
 - script: sleep 10
-- script: curl -s 'http://localhost:8428/api/v1/query?query=ceil(rate(mm_lag[1m]))'
-- script: curl -s -d 'mm_lag{test_label="integration_test"} 0' -X POST 'http://localhost:8428/api/v1/import/prometheus'
-  timeout: 10
+- script: curl -s -d 'system_cpu_usage{app="nginx",test="integration_test"} 40' -X POST 'http://localhost:8428/api/v1/import/prometheus'
+- script: curl -s -d 'nginx_server_total_connections{app="nginx",test="integration_test"} 400' -X POST 'http://localhost:8428/api/v1/import/prometheus'
 - script: sleep 10
-- script: curl -s 'http://localhost:8428/api/v1/query?query=ceil(rate(mm_lag[1m]))'
-- script: curl -s -d 'mm_lag{test_label="integration_test"} 0' -X POST 'http://localhost:8428/api/v1/import/prometheus'
-  timeout: 10
-- script: curl -s 'http://localhost:8428/api/v1/query?query=ceil(rate(mm_lag[1m]))'
-- script: curl -s -d 'mm_lag{test_label="integration_test"} 0' -X POST 'http://localhost:8428/api/v1/import/prometheus'
-  timeout: 10
+- script: curl -s -d 'system_cpu_usage{app="nginx"} 40' -X POST 'http://localhost:8428/api/v1/import/prometheus'
+- script: curl -s -d 'server_total_connections{app="nginx",test="integration_test"} 200' -X POST 'http://localhost:8428/api/v1/import/prometheus'
 - script: sleep 10
-- script: curl -s 'http://localhost:8428/api/v1/query?query=ceil(rate(mm_lag[1m]))'
-- script: curl -s -d 'mm_lag{test_label="integration_test"} 0' -X POST 'http://localhost:8428/api/v1/import/prometheus'
-  timeout: 10
+- script: curl -s -d 'system_cpu_usage{app="nginx",test="integration_test"} 40' -X POST 'http://localhost:8428/api/v1/import/prometheus'
+- script: curl -s -d 'server_total_connections{app="nginx",test="integration_test"} 200' -X POST 'http://localhost:8428/api/v1/import/prometheus'
 - script: sleep 10
-- script: curl -s 'http://localhost:8428/api/v1/query?query=ceil(rate(mm_lag[1m]))'
+- script: curl -s -d 'system_cpu_usage{app="nginx",test="integration_test"} 40' -X POST 'http://localhost:8428/api/v1/import/prometheus'
+- script: curl -s -d 'server_total_connections{app="nginx",test="integration_test"} 200' -X POST 'http://localhost:8428/api/v1/import/prometheus'
+- script: sleep 10
+- script: curl -s 'http://localhost:8428/api/v1/query?query=ceil(avg(system_cpu_usage\{app="nginx",test="integration_test"\}))'
+- script: curl -s 'http://localhost:8428/api/v1/query?query=ceil(sum(rate(server_total_connections\{app="nginx",test="integration_test"\}[1m])))'
 - script: sleep 10

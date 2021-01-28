@@ -3,20 +3,18 @@ kind: TestStep
 commands:
 - command: kubectl port-forward svc/test-vm-victoria-metrics-single-server 8428:8428
   background: true
-  timeout: 600
+  timeout: 300
   skipLogOutput: true
+- script: sleep 5
+- script: curl -s -d 'system_cpu_usage{app="nginx"} 30' -X POST 'http://localhost:8428/api/v1/import/prometheus'
+- script: curl -s -d 'server_total_connections{app="nginx",test="integration_test"} 400' -X POST 'http://localhost:8428/api/v1/import/prometheus'
 - script: sleep 10
-- script: curl -s -d 'mm_lag{test_label="integration_test"} 10000' -X POST 'http://localhost:8428/api/v1/import/prometheus'
-  timeout: 10
-  skipLogOutput: true
+- script: curl -s -d 'system_cpu_usage{app="nginx"} 40' -X POST 'http://localhost:8428/api/v1/import/prometheus'
+- script: curl -s -d 'server_total_connections{app="nginx",test="integration_test"} 800' -X POST 'http://localhost:8428/api/v1/import/prometheus'
 - script: sleep 10
-- script: curl -s 'http://localhost:8428/api/v1/query?query=ceil(rate(mm_lag[1m]))'
-- script: curl -s -d 'mm_lag{test_label="integration_test"} 20000' -X POST 'http://localhost:8428/api/v1/import/prometheus'
-  timeout: 10
+- script: curl -s -d 'system_cpu_usage{app="nginx"} 50' -X POST 'http://localhost:8428/api/v1/import/prometheus'
+- script: curl -s -d 'server_total_connections{app="nginx",test="integration_test"} 1200' -X POST 'http://localhost:8428/api/v1/import/prometheus'
 - script: sleep 10
-- script: curl -s 'http://localhost:8428/api/v1/query?query=ceil(rate(mm_lag[1m]))'
-- script: curl -s -d 'mm_lag{test_label="integration_test"} 30000' -X POST 'http://localhost:8428/api/v1/import/prometheus'
-  timeout: 10
-- script: sleep 10
-- script: curl -s 'http://localhost:8428/api/v1/query?query=ceil(rate(mm_lag[1m]))'
+- script: curl -s 'http://localhost:8428/api/v1/query?query=ceil(avg(system_cpu_usage\{app="nginx",test="integration_test"\}))'
+- script: curl -s 'http://localhost:8428/api/v1/query?query=ceil(sum(rate(server_total_connections\{app="nginx",test="integration_test"\}[1m])))'
 - script: sleep 10

@@ -16,21 +16,18 @@ import (
 	"log"
 	"os"
 	"testing"
-
-	//"github.com/spf13/cobra"
-	//"github.com/spf13/pflag"
-
 	harness "github.com/kudobuilder/kuttl/pkg/apis/testharness/v1beta1"
 	"github.com/kudobuilder/kuttl/pkg/test"
 	testutils "github.com/kudobuilder/kuttl/pkg/test/utils"
 )
 
-// Run Integration Tests as `KRATOS_NAMESPACES=default mage integration_tests:run`
+// Run Integration Tests `mage integration_tests:run`
 func Run() error {
 
 	options := harness.TestSuite{}
 
-	configPath := ""
+	configPath := "tests/integration/integration-tests.yaml"
+	testToRun := "test"
 
 	// If a config is not set and kuttl-test.yaml exists, set configPath to kuttl-test.yaml.
 	if configPath == "" {
@@ -58,16 +55,8 @@ func Run() error {
 			}
 		}
 	}
-
-	options.KINDContext = "kind"
-	options.KINDConfig = ""
-	options.CRDDir = "config/crd"
-	options.Parallel = 1
-	options.ManifestDirs = []string{"config/rbac", "tests/integration/manifests"}
-	options.ArtifactsDir = "tests/artifacts"
-	options.SkipClusterDelete = false
-
-	testutils.RunTests("kuttl", "test", options.Parallel, func(t *testing.T) {
+	
+	testutils.RunTests("kuttl", testToRun, options.Parallel, func(t *testing.T) {
 		harness := test.Harness{
 			TestSuite: options,
 			T:         t,

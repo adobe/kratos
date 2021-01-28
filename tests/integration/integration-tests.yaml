@@ -12,18 +12,21 @@ commands:
   namespaced: true
 - command: go run main.go --namespaces=default --metrics-addr=:8081
   background: true
+  ignoreFailure: false
   skipLogOutput: false
   timeout: 120
 testDirs:
 - tests/integration
-startKIND: true
-kindNodeCache: true
-timeout: 120
-namespace: default
-crdDir: config/crd
 artifactsDir: tests/artifacts
+crdDir: config/crd
+kindContext: "kind"
+kindNodeCache: true
 manifestDirs:
 - config/rbac
 - tests/integration/manifests
+namespace: default
+parallel: 1
 reportFormat: JSON
 reportName: Integration-Test
+startKIND: true
+timeout: 120

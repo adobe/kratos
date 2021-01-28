@@ -41,7 +41,7 @@ func Build() {
 	mg.SerialDeps(dockerutils.PushImage)
 }
 
-// Run Integration Tests as `KRATOS_NAMESPACES=default mage RunIntegrationTests`
+// Run Integration Tests: `mage RunIntegrationTests`
 func RunIntegrationTests() {
 	mg.SerialDeps(integration_tests.Run)
 }
