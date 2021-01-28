@@ -57,4 +57,4 @@ data:
           prometheusEndpoint: "http://localhost:8428"
           target:
             type: AverageValue
-            AverageValue: 10
+            averageValue: 10
