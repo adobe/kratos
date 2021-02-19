@@ -24,14 +24,10 @@ import (
 	"github.com/adobe/kratos/cache"
 	"github.com/go-logr/logr"
 	"github.com/prometheus/client_golang/api"
-	"github.com/prometheus/client_golang/api/prometheus/v1"
+	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
 	"github.com/prometheus/common/model"
+	"k8s.io/apimachinery/pkg/labels"
 	"sigs.k8s.io/controller-runtime/pkg/log"
-)
-
-const (
-	defaultCacheTtl    = time.Minute * 5
-	defaultCallTimeout = time.Second * 10
 )
 
 type prometheusMetricsFetcher struct {
@@ -58,7 +54,7 @@ func newPrometheusMetricsFetcher(defaultUrl string) *prometheusMetricsFetcher {
 	return fetcher
 }
 
-func (p *prometheusMetricsFetcher) Fetch(scaleMetric *v1alpha1.ScaleMetric) ([]MetricValue, error) {
+func (p *prometheusMetricsFetcher) Fetch(scaleMetric *v1alpha1.ScaleMetric, namespace string, selector labels.Selector) ([]MetricValue, error) {
 	client, err := p.getOrCreateClient(scaleMetric.Prometheus.PrometheusEndpoint)
 
 	if err != nil {

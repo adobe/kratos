@@ -1,0 +1,31 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kratos-resource-example
+data:
+  kratosSpec: |-
+    algorithm:
+      type: hpa
+    minReplicas: 1
+    maxReplicas: 4
+    stabilizationWindowSeconds: 30
+    target:
+      apiVersion: apps/v1
+      kind: Deployment
+      name: nginx
+    metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          target:
+            type: AverageValue # AverageValue/Utilization/Value
+            averageValue: 10
+      - type: Resource
+        resource:
+          name: memory
+          target:
+            type: AverageValue # AverageValue/Utilization/Value
+            averageValue: 100
+            # averageUtilization
+            # value

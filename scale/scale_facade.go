@@ -15,6 +15,7 @@ package scale
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/adobe/kratos/api/common"
@@ -25,7 +26,9 @@ import (
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
 	"k8s.io/client-go/tools/record"
+
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/yaml"
@@ -59,7 +62,7 @@ func NewScaleFacade(params *common.KratosParameters) (*ScaleFacade, error) {
 		client:            params.Client,
 		log:               ctrl.Log.WithName("scale-facade"),
 		scaleTarget:       scaleTarget,
-		metricsFactory:    metrics.NewMetricsFactory(params.DefaultPrometheusUrl),
+		metricsFactory:    metrics.NewMetricsFactory(params),
 		replicaCalculator: replicas.NewReplicaCalculator(0.1), //todo params?
 		replicaNormalizer: normalizer.NewReplicaNormalizer(),
 		eventRecorder:     params.EventRecorder,
@@ -94,7 +97,7 @@ func (f *ScaleFacade) Scale(item *corev1.ConfigMap) {
 	currentReplicas := scaleObject.Status.Replicas
 	status.CurrentReplicas = currentReplicas
 
-	log.V(1).Info("retrieved scale target", "replicas", currentReplicas)
+	log.V(1).Info("retrieved scale target", "scaleObject", scaleObject, "status", status)
 
 	defer func() {
 		err := f.updateObjects(item, spec, status)
@@ -129,7 +132,6 @@ func (f *ScaleFacade) Scale(item *corev1.ConfigMap) {
 			log.Error(err, "unable to scale target to desired replicas", "namespace", scaleObject.GetNamespace(), "name", scaleObject.GetName(), "replicas", normalizedReplicas)
 			f.eventRecorder.Eventf(item, corev1.EventTypeWarning, "ScaleError", "can't scale target: %v", err.Error())
 		}
-
 	}
 }
 
@@ -183,6 +185,11 @@ func (f *ScaleFacade) marshall(spec *v1alpha1.KratosSpec, status *v1alpha1.Krato
 func (f *ScaleFacade) calculateMaxScaleReplicas(item *corev1.ConfigMap, currentReplicas int32, spec *v1alpha1.KratosSpec) int32 {
 	log := f.log.WithValues("namespace", item.GetNamespace(), "name", item.GetName())
 	maxReplicaProposal := int32(0)
+
+	selector, _ := f.scaleTarget.GetSelectorForTarget(item.GetNamespace(), &spec.Target)
+
+	f.log.Info("got selector", "selector", selector)
+
 	for _, metric := range spec.Metrics {
 		metricFetcher, err := f.metricsFactory.GetMetricsFetcher(&metric)
 
@@ -192,14 +199,22 @@ func (f *ScaleFacade) calculateMaxScaleReplicas(item *corev1.ConfigMap, currentR
 			continue
 		}
 
-		metricValues, err := metricFetcher.Fetch(&metric)
+		metricValues, err := metricFetcher.Fetch(&metric, item.GetNamespace(), selector)
 
 		if err != nil {
 			log.Error(err, "error on fetching metric", "metric", metric)
 			f.eventRecorder.Eventf(item, corev1.EventTypeWarning, "MetricFetchError", "error on fetching metric: %v, error: %v", metric, err.Error())
 			continue
 		}
-		replicaProposal, err := f.replicaCalculator.CalculateReplicas(currentReplicas, metric.Prometheus.Target, metricValues)
+
+		metricTarget, err := f.getMetricTarget(metric)
+		if err != nil {
+			log.Error(err, err.Error(), "metric", metric)
+			f.eventRecorder.Eventf(item, corev1.EventTypeWarning, "MetricTypeError", "Unknown metric type: %v", metric)
+			continue
+		}
+
+		replicaProposal, err := f.replicaCalculator.CalculateReplicas(currentReplicas, *metricTarget, metricValues)
 
 		log.V(1).Info("metric values and replica proposal", "replicas", replicaProposal, "metrics", metricValues)
 
@@ -222,6 +237,17 @@ func (f *ScaleFacade) calculateMaxScaleReplicas(item *corev1.ConfigMap, currentR
 	}
 
 	return maxReplicaProposal
+}
+
+func (f *ScaleFacade) getMetricTarget(metric v1alpha1.ScaleMetric) (*v1alpha1.MetricTarget, error) {
+	switch metric.Type {
+	case v1alpha1.PrometheusScaleMetricType:
+		return &metric.Prometheus.Target, nil
+	case v1alpha1.ResourceScaleMetricType:
+		return &metric.Resource.Target, nil
+	default:
+		return nil, errors.New(fmt.Sprintf("Unknown metric type %s \n", metric.Type))
+	}
 }
 
 func (f *ScaleFacade) updateObjects(originalItem *corev1.ConfigMap, spec *v1alpha1.KratosSpec, status *v1alpha1.KratosStatus) error {

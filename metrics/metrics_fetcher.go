@@ -16,8 +16,18 @@ package metrics
 import (
 	"errors"
 	"fmt"
+	"time"
 
+	"k8s.io/apimachinery/pkg/labels"
+
+	"github.com/adobe/kratos/api/common"
 	"github.com/adobe/kratos/api/v1alpha1"
+	metrics "k8s.io/metrics/pkg/client/clientset/versioned"
+)
+
+const (
+	defaultCacheTtl    = time.Minute * 5
+	defaultCallTimeout = time.Second * 10
 )
 
 type MetricValue struct {
@@ -25,16 +35,22 @@ type MetricValue struct {
 }
 
 type MetricsFetcher interface {
-	Fetch(scaleMetric *v1alpha1.ScaleMetric) ([]MetricValue, error)
+	Fetch(scaleMetric *v1alpha1.ScaleMetric, namespace string, selector labels.Selector) ([]MetricValue, error)
 }
 
 type MetricsFactory struct {
 	prometheusFetcher MetricsFetcher
+	resourceFetcher   MetricsFetcher
 }
 
-func NewMetricsFactory(defaultPrometheusUrl string) *MetricsFactory {
+func NewMetricsFactory(params *common.KratosParameters) *MetricsFactory {
+	mc, err := metrics.NewForConfig(params.ClientConfig)
+	if err != nil {
+		panic(err.Error())
+	}
 	return &MetricsFactory{
-		prometheusFetcher: newPrometheusMetricsFetcher(defaultPrometheusUrl),
+		prometheusFetcher: newPrometheusMetricsFetcher(params.DefaultPrometheusUrl),
+		resourceFetcher:   newResourceMetricsFetcher(mc),
 	}
 }
 
@@ -42,6 +58,8 @@ func (facade *MetricsFactory) GetMetricsFetcher(scaleMetric *v1alpha1.ScaleMetri
 	switch scaleMetric.Type {
 	case v1alpha1.PrometheusScaleMetricType:
 		return facade.prometheusFetcher, nil
+	case v1alpha1.ResourceScaleMetricType:
+		return facade.resourceFetcher, nil
 	default:
 		return nil, errors.New(fmt.Sprintf("Unknown metric type %s \n", scaleMetric.Type))
 	}
