@@ -24,6 +24,7 @@ data:
       - type: Resource
         resource:
           name: memory
+          container: nginx
           target:
             type: AverageValue # AverageValue/Utilization/Value
             averageValue: 100

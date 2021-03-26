@@ -15,9 +15,9 @@ package metrics
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/adobe/kratos/api/v1alpha1"
-	"github.com/adobe/kratos/cache"
 	"github.com/go-logr/logr"
 
 	corev1 "k8s.io/api/core/v1"
@@ -30,44 +30,56 @@ import (
 )
 
 type resourceMetricsFetcher struct {
-	client               clientset.Interface
-	resourceMetricsCache *cache.TTLCache
-	log                  logr.Logger
+	metricsClient clientset.Interface
+	log           logr.Logger
 }
 
-func newResourceMetricsFetcher(client clientset.Interface) *resourceMetricsFetcher {
+func newResourceMetricsFetcher(metricsClient clientset.Interface) *resourceMetricsFetcher {
 	fetcher := &resourceMetricsFetcher{
-		client:               client,
-		resourceMetricsCache: cache.NewTTLCache("resourceMetrics-clients", defaultCacheTtl),
-		log:                  log.Log.WithName("resourceMetrics-fetcher"),
+		metricsClient: metricsClient,
+		log:           log.Log.WithName("resourceMetrics-fetcher"),
 	}
 
 	return fetcher
 }
 
-func (p *resourceMetricsFetcher) Fetch(scaleMetric *v1alpha1.ScaleMetric, namespace string, selector labels.Selector) ([]MetricValue, error) {
+func (r *resourceMetricsFetcher) Fetch(scaleMetric *v1alpha1.ScaleMetric, namespace string, selector labels.Selector) ([]MetricValue, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), defaultCallTimeout)
 	defer cancel()
 
-	opt := metav1.ListOptions{
+	opts := metav1.ListOptions{
 		LabelSelector: selector.String(),
 	}
 
-	podList, err := p.client.MetricsV1beta1().PodMetricses(namespace).List(ctx, opt)
+	podMetricsList, err := r.metricsClient.MetricsV1beta1().PodMetricses(namespace).List(ctx, opts)
 	if err != nil {
 		return nil, err
 	}
+
+	r.log.Info("Fetched resource metrics", "selector", selector.String(), "container", scaleMetric.Resource.Container, "metrics", podMetricsList.Items)
+
 	ret := []MetricValue{}
 
-	for _, podMetrics := range podList.Items {
+	for _, podMetrics := range podMetricsList.Items {
+		var accum int64 = 0
+		found := false
 		for _, container := range podMetrics.Containers {
-			switch scaleMetric.Resource.Name {
-			case corev1.ResourceCPU:
-				ret = append(ret, MetricValue{container.Usage.Cpu().Value()})
-			case corev1.ResourceMemory:
-				ret = append(ret, MetricValue{container.Usage.Memory().Value()})
+			if scaleMetric.Resource.Container == "" || scaleMetric.Resource.Container == container.Name {
+				found = true
+				switch scaleMetric.Resource.Name {
+				case corev1.ResourceCPU:
+					accum += container.Usage.Cpu().Value()
+				case corev1.ResourceMemory:
+					accum += container.Usage.Memory().Value()
+				default:
+					return nil, fmt.Errorf("Unsuported resource type %s", scaleMetric.Resource.Name)
+				}
 			}
 		}
+		if !found {
+			return nil, fmt.Errorf("container %s not present in metrics for pod %s/%s", scaleMetric.Resource.Container, namespace, podMetrics.Name)
+		}
+		ret = append(ret, MetricValue{accum})
 	}
 
 	return ret, nil
