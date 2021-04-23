@@ -20,8 +20,10 @@ import (
 )
 
 var _ = Describe("MetricsFactory", func() {
+
 	It("Unknown fetcher type", func() {
-		metricsFactory := NewMetricsFactory("testUrl")
+
+		metricsFactory := NewMetricsFactory(fakeKratosSpec)
 		scaleMetric := &v1alpha1.ScaleMetric{
 			Type: "testType",
 		}
@@ -31,9 +33,20 @@ var _ = Describe("MetricsFactory", func() {
 	})
 
 	It("Prometheus fetcher type", func() {
-		metricsFactory := NewMetricsFactory("testUrl")
+		metricsFactory := NewMetricsFactory(fakeKratosSpec)
 		scaleMetric := &v1alpha1.ScaleMetric{
 			Type: v1alpha1.PrometheusScaleMetricType,
+		}
+		fetcher, err := metricsFactory.GetMetricsFetcher(scaleMetric)
+
+		Expect(err).To(BeNil(), "no error for supported metrics fetcher type")
+		Expect(fetcher).NotTo(BeNil())
+	})
+
+	It("Resource fetcher type", func() {
+		metricsFactory := NewMetricsFactory(fakeKratosSpec)
+		scaleMetric := &v1alpha1.ScaleMetric{
+			Type: v1alpha1.ResourceScaleMetricType,
 		}
 		fetcher, err := metricsFactory.GetMetricsFetcher(scaleMetric)
 

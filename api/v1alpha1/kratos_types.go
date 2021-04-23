@@ -134,6 +134,9 @@ type ResourceMetricSource struct {
 	Name v1.ResourceName `json:"name" protobuf:"bytes,1,name=name"`
 	// target specifies the target value for the given metric
 	Target MetricTarget `json:"target" protobuf:"bytes,2,name=target"`
+	// container is the name of the container in the pods of the scaling target.
+	// +optional
+	Container string `json:"container" protobuf:"bytes,3,opt,name=container"`
 }
 
 // PodsMetricSource indicates how to scale on a metric describing each pod in

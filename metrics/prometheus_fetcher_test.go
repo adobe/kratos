@@ -72,7 +72,7 @@ var _ = Describe("PrometheusFetcher", func() {
 			Prometheus: &v1alpha1.PrometheusMetricSource{
 				MetricQuery: "count(up)",
 			}}
-		_, err := fetcher.Fetch(scaleMetric)
+		_, err := fetcher.Fetch(scaleMetric, "", nil)
 
 		Expect(err).ToNot(BeNil(), "non prometheus response should result in error")
 	})
@@ -89,7 +89,7 @@ var _ = Describe("PrometheusFetcher", func() {
 			Prometheus: &v1alpha1.PrometheusMetricSource{
 				MetricQuery: query,
 			}}
-		fetchResults, err := fetcher.Fetch(scaleMetric)
+		fetchResults, err := fetcher.Fetch(scaleMetric, "", nil)
 
 		Expect(err).To(BeNil(), "no errors on scalar value")
 		Expect(len(fetchResults)).To(Equal(1), "scalar value should result in single item")
@@ -106,7 +106,7 @@ var _ = Describe("PrometheusFetcher", func() {
 			Prometheus: &v1alpha1.PrometheusMetricSource{
 				MetricQuery: query,
 			}}
-		fetchResults, err := fetcher.Fetch(scaleMetric)
+		fetchResults, err := fetcher.Fetch(scaleMetric, "", nil)
 
 		Expect(err).To(BeNil(), "no errors on vector value")
 		Expect(len(fetchResults)).To(Equal(0), "empty vector value should result in empty metrics")
@@ -135,7 +135,7 @@ var _ = Describe("PrometheusFetcher", func() {
 			Prometheus: &v1alpha1.PrometheusMetricSource{
 				MetricQuery: query,
 			}}
-		fetchResults, err := fetcher.Fetch(scaleMetric)
+		fetchResults, err := fetcher.Fetch(scaleMetric, "", nil)
 
 		Expect(err).To(BeNil(), "no errors on vector value")
 		Expect(len(fetchResults)).To(Equal(len(samples)), "vector size should be equal to returned metrics size")
