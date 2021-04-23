@@ -38,15 +38,9 @@ func (rc *ReplicaCalculator) CalculateReplicas(currentReplicas int32, metricTarg
 		return rc.calculateValue(currentReplicas, metricTarget, metricValues)
 	case v1alpha1.AverageValueMetricType:
 		return rc.calculateAverageValue(currentReplicas, metricTarget, metricValues)
-		// case v1alpha1.UtilizationMetricType:
-		// 	return rc.calculateUtilization(currentReplicas, metricTarget, metricValues)
 	}
 	return 0, errors.New(fmt.Sprintf("Replica calculator not implemented yet: %s", metricTarget.Type))
 }
-
-// func (rc *ReplicaCalculator) calculateUtilization(currentReplicas int32, metricTarget v1alpha1.MetricTarget, metricValues []metrics.MetricValue) (int32, error) {
-// 	return currentReplicas, nil
-// }
 
 func (rc *ReplicaCalculator) calculateValue(currentReplicas int32, metricTarget v1alpha1.MetricTarget, metricValues []metrics.MetricValue) (int32, error) {
 	utilization := int64(0)
