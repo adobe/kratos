@@ -224,7 +224,7 @@ func (in *MetricTarget) DeepCopyInto(out *MetricTarget) {
 	}
 	if in.AverageUtilization != nil {
 		in, out := &in.AverageUtilization, &out.AverageUtilization
-		*out = new(int32)
+		*out = new(float64)
 		**out = **in
 	}
 }
