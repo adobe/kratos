@@ -19,14 +19,13 @@ data:
         resource:
           name: cpu
           target:
-            type: AverageValue # AverageValue/Utilization/Value
+            type: AverageValue
             averageValue: 10
       - type: Resource
         resource:
           name: memory
           container: nginx
           target:
-            type: AverageValue # AverageValue/Utilization/Value
-            averageValue: 100
-            # averageUtilization
-            # value
+            type: Utilization
+            averageUalue: 50
+

@@ -222,7 +222,7 @@ type MetricTarget struct {
 	// the requested value of the resource for the pods.
 	// Currently only valid for Resource metric source type
 	// +optional
-	AverageUtilization *float64 `json:"averageUtilization,omitempty" protobuf:"bytes,4,opt,name=averageUtilization"`
+	AverageUtilization *int32 `json:"averageUtilization,omitempty" protobuf:"bytes,4,opt,name=averageUtilization"`
 }
 
 type ScaleBehavior struct {

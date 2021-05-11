@@ -204,7 +204,7 @@ func (f *ScaleFacade) calculateMaxScaleReplicas(item *corev1.ConfigMap, currentR
 
 		if err != nil {
 			log.Error(err, "error on fetching metric", "metric", metric)
-			f.eventRecorder.Eventf(item, corev1.EventTypeWarning, "MetricFetchError", "error on fetching metric: %v, error: %v", metric, err.Error())
+			f.eventRecorder.Eventf(item, corev1.EventTypeWarning, "MetricFetchError", "error on fetching metric type: %s, error: %v", metric.Type, err.Error())
 			continue
 		}
 
@@ -291,7 +291,7 @@ func (f *ScaleFacade) findLongestPolicyWindow(policies []v1alpha1.ScalingPolicy)
 
 func (f *ScaleFacade) expireRecommendations(windowSeconds int32, recommendations []v1alpha1.Recommendation) []v1alpha1.Recommendation {
 	result := recommendations[:0]
-	cutOff := time.Now().Add(time.Duration(-windowSeconds))
+	cutOff := time.Now().Add(time.Duration(-windowSeconds) * time.Second)
 	for _, recommendation := range recommendations {
 		if recommendation.Timestamp.Time.After(cutOff) {
 			result = append(result, recommendation)

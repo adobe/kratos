@@ -66,7 +66,7 @@ func (rc *ReplicaCalculator) calculateUtilization(currentReplicas int32, scaleMe
 	}
 
 	metricTarget, _ := scaleMetric.GetMetricTarget()
-	usageRatio := (float64(utilization) / totalResources) / *metricTarget.AverageUtilization
+	usageRatio := (float64(utilization) / totalResources) / (float64(*metricTarget.AverageUtilization) / 100.0)
 
 	if math.Abs(1.0-usageRatio) <= rc.tolerance {
 		// return the current replicas if the change would be too small

@@ -93,7 +93,7 @@ var _ = Describe("ReplicaCalculator", func() {
 	It("Resource target - no requests specified", func() {
 		replicaCalculator := NewReplicaCalculator(0.1)
 
-		averageUtilization := float64(0.5)
+		averageUtilization := int32(50)
 		scaleMetric := v1alpha1.ScaleMetric{
 			Type: v1alpha1.ResourceScaleMetricType,
 			Resource: &v1alpha1.ResourceMetricSource{
@@ -118,7 +118,7 @@ var _ = Describe("ReplicaCalculator", func() {
 	It("Resource target - value calculator", func() {
 		replicaCalculator := NewReplicaCalculator(0.1)
 
-		averageUtilization := float64(0.5)
+		averageUtilization := int32(50)
 		scaleMetric := v1alpha1.ScaleMetric{
 			Type: v1alpha1.ResourceScaleMetricType,
 			Resource: &v1alpha1.ResourceMetricSource{
