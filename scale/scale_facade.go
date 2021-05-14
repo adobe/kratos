@@ -15,7 +15,6 @@ package scale
 import (
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/adobe/kratos/api/common"
@@ -188,7 +187,9 @@ func (f *ScaleFacade) calculateMaxScaleReplicas(item *corev1.ConfigMap, currentR
 
 	selector, _ := f.scaleTarget.GetSelectorForTarget(item.GetNamespace(), &spec.Target)
 
-	f.log.Info("got selector", "selector", selector)
+	requestedResources, _ := f.scaleTarget.GetRequestedResources(item.GetNamespace(), selector)
+
+	f.log.Info("Pods selector and total requested resources", "selector", selector, "requestedResource", requestedResources)
 
 	for _, metric := range spec.Metrics {
 		metricFetcher, err := f.metricsFactory.GetMetricsFetcher(&metric)
@@ -203,18 +204,11 @@ func (f *ScaleFacade) calculateMaxScaleReplicas(item *corev1.ConfigMap, currentR
 
 		if err != nil {
 			log.Error(err, "error on fetching metric", "metric", metric)
-			f.eventRecorder.Eventf(item, corev1.EventTypeWarning, "MetricFetchError", "error on fetching metric: %v, error: %v", metric, err.Error())
+			f.eventRecorder.Eventf(item, corev1.EventTypeWarning, "MetricFetchError", "error on fetching metric type: %s, error: %v", metric.Type, err.Error())
 			continue
 		}
 
-		metricTarget, err := f.getMetricTarget(metric)
-		if err != nil {
-			log.Error(err, err.Error(), "metric", metric)
-			f.eventRecorder.Eventf(item, corev1.EventTypeWarning, "MetricTypeError", "Unknown metric type: %v", metric)
-			continue
-		}
-
-		replicaProposal, err := f.replicaCalculator.CalculateReplicas(currentReplicas, *metricTarget, metricValues)
+		replicaProposal, err := f.replicaCalculator.CalculateReplicas(currentReplicas, requestedResources, metric, metricValues)
 
 		log.V(1).Info("metric values and replica proposal", "replicas", replicaProposal, "metrics", metricValues)
 
@@ -237,17 +231,6 @@ func (f *ScaleFacade) calculateMaxScaleReplicas(item *corev1.ConfigMap, currentR
 	}
 
 	return maxReplicaProposal
-}
-
-func (f *ScaleFacade) getMetricTarget(metric v1alpha1.ScaleMetric) (*v1alpha1.MetricTarget, error) {
-	switch metric.Type {
-	case v1alpha1.PrometheusScaleMetricType:
-		return &metric.Prometheus.Target, nil
-	case v1alpha1.ResourceScaleMetricType:
-		return &metric.Resource.Target, nil
-	default:
-		return nil, errors.New(fmt.Sprintf("Unknown metric type %s \n", metric.Type))
-	}
 }
 
 func (f *ScaleFacade) updateObjects(originalItem *corev1.ConfigMap, spec *v1alpha1.KratosSpec, status *v1alpha1.KratosStatus) error {
@@ -308,7 +291,7 @@ func (f *ScaleFacade) findLongestPolicyWindow(policies []v1alpha1.ScalingPolicy)
 
 func (f *ScaleFacade) expireRecommendations(windowSeconds int32, recommendations []v1alpha1.Recommendation) []v1alpha1.Recommendation {
 	result := recommendations[:0]
-	cutOff := time.Now().Add(time.Duration(-windowSeconds))
+	cutOff := time.Now().Add(time.Duration(-windowSeconds) * time.Second)
 	for _, recommendation := range recommendations {
 		if recommendation.Timestamp.Time.After(cutOff) {
 			result = append(result, recommendation)

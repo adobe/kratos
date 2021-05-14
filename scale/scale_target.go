@@ -26,6 +26,7 @@ import (
 	batchv1beta1 "k8s.io/api/batch/v1beta1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -55,6 +56,8 @@ const (
 	replicationController string = "ReplicationController"
 	job                   string = "Job"
 	cronJob               string = "CronJob"
+
+	ALL_CONTAINERS string = ""
 )
 
 const defaultResyncPeriod time.Duration = 10 * time.Minute
@@ -138,6 +141,52 @@ func (st *ScaleTarget) GetScaleTarget(namespace string, targetRef *v1alpha1.Scal
 	}
 
 	return scaleObject, &targetGroupResource, nil
+}
+
+func (st *ScaleTarget) GetRequestedResources(namespace string, selector labels.Selector) (map[string]*corev1.ResourceList, error) {
+	pods := &corev1.PodList{}
+
+	st.client.List(context.TODO(), pods, client.MatchingLabelsSelector{Selector: selector}, client.InNamespace(namespace))
+
+	reqs := map[string]*corev1.ResourceList{}
+	allReqs := st.NewRequestedResource()
+
+	for _, pod := range pods.Items {
+		for _, container := range pod.Spec.Containers {
+			containerReqs, ok := reqs[container.Name]
+
+			if !ok {
+				containerReqs = st.NewRequestedResource()
+			}
+
+			for _, r := range []corev1.ResourceName{corev1.ResourceCPU, corev1.ResourceMemory, corev1.ResourceStorage} {
+				accum := (*allReqs)[r]
+				accum.Add(container.Resources.Requests[r])
+				(*allReqs)[r] = accum
+
+				perContainer := (*containerReqs)[r]
+				perContainer.Add(container.Resources.Requests[r])
+				(*containerReqs)[r] = perContainer
+			}
+
+			reqs[container.Name] = containerReqs
+		}
+	}
+
+	reqs[ALL_CONTAINERS] = allReqs
+
+	return reqs, nil
+}
+
+func (st *ScaleTarget) NewRequestedResource() *corev1.ResourceList {
+	request := &corev1.ResourceList{
+		corev1.ResourceCPU:     *resource.NewQuantity(0, resource.DecimalSI),
+		corev1.ResourceMemory:  *resource.NewQuantity(0, resource.BinarySI),
+		corev1.ResourceStorage: *resource.NewQuantity(0, resource.BinarySI),
+	}
+
+	return request
+
 }
 
 func (st *ScaleTarget) GetSelectorForTarget(namespace string, targetRef *v1alpha1.ScaleTargetReference) (labels.Selector, error) {
