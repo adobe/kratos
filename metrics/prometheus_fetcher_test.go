@@ -74,7 +74,7 @@ var _ = Describe("PrometheusFetcher", func() {
 			}}
 		_, err := fetcher.Fetch(scaleMetric, "", nil)
 
-		Expect(err).ToNot(BeNil(), "non prometheus response should result in error")
+		Expect(err).NotTo(BeNil(), "non prometheus response should result in error")
 	})
 
 	It("Scalar value", func() {

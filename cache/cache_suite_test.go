@@ -16,20 +16,17 @@ package cache
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"sigs.k8s.io/controller-runtime/pkg/envtest/printer"
 	"testing"
 )
 
 func TestCache(t *testing.T) {
 	RegisterFailHandler(Fail)
 
-	RunSpecsWithDefaultAndCustomReporters(t,
-		"Cache Suite",
-		[]Reporter{printer.NewlineReporter{}})
+	RunSpecs(t, "Cache Suite")
 }
 
-var _ = BeforeSuite(func(done Done) {
-	close(done)
+var _ = BeforeSuite(func() {
+
 }, 60)
 
 var _ = AfterSuite(func() {

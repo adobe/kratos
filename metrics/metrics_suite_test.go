@@ -23,7 +23,6 @@ import (
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
-	"sigs.k8s.io/controller-runtime/pkg/envtest/printer"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
@@ -43,23 +42,22 @@ var fakeKratosSpec *common.KratosParameters
 func TestMetrics(t *testing.T) {
 	RegisterFailHandler(Fail)
 
-	RunSpecsWithDefaultAndCustomReporters(t,
-		"Metrics Suite",
-		[]Reporter{printer.NewlineReporter{}})
+	RunSpecs(t, "Metrics Suite")
 }
 
-var _ = BeforeSuite(func(done Done) {
-	logf.SetLogger(zap.LoggerTo(GinkgoWriter, true))
+var _ = BeforeSuite(func() {
+	logf.SetLogger(zap.New(zap.WriteTo(GinkgoWriter), zap.UseDevMode(true)))
 
 	By("bootstrapping test environment")
 	testEnv = &envtest.Environment{
-		CRDDirectoryPaths: []string{filepath.Join("..", "config", "crd", "bases")},
+		CRDDirectoryPaths:     []string{filepath.Join("..", "config", "crd")},
+		ErrorIfCRDPathMissing: true,
 	}
 
 	var err error
 	cfg, err = testEnv.Start()
-	Expect(err).ToNot(HaveOccurred())
-	Expect(cfg).ToNot(BeNil())
+	Expect(err).NotTo(HaveOccurred())
+	Expect(cfg).NotTo(BeNil())
 
 	err = scalingv1alpha1.AddToScheme(scheme.Scheme)
 	Expect(err).NotTo(HaveOccurred())
@@ -67,17 +65,16 @@ var _ = BeforeSuite(func(done Done) {
 	// +kubebuilder:scaffold:scheme
 
 	k8sClient, err = client.New(cfg, client.Options{Scheme: scheme.Scheme})
-	Expect(err).ToNot(HaveOccurred())
-	Expect(k8sClient).ToNot(BeNil())
+	Expect(err).NotTo(HaveOccurred())
+	Expect(k8sClient).NotTo(BeNil())
 	fakeKratosSpec = &common.KratosParameters{
 		ClientConfig: cfg,
 		Client:       k8sClient,
 	}
-	close(done)
 }, 60)
 
 var _ = AfterSuite(func() {
 	By("tearing down the test environment")
 	err := testEnv.Stop()
-	Expect(err).ToNot(HaveOccurred())
+	Expect(err).NotTo(HaveOccurred())
 })
