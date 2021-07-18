@@ -1,6 +1,6 @@
 module github.com/adobe/kratos
 
-go 1.15
+go 1.16
 
 require (
 	github.com/docker/docker v20.10.7+incompatible
