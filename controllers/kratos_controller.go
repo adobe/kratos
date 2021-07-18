@@ -56,13 +56,13 @@ func NewKratosReconciler(params *common.KratosParameters) (*KratosReconciler, er
 
 // +kubebuilder:rbac:groups=scaling.core.adobe.com,resources=kratos,verbs=get;list;watch;create;update;patch;delete
 // +kubebuilder:rbac:groups=scaling.core.adobe.com,resources=kratos/status,verbs=get;update;patch
-func (r *KratosReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
+func (r *KratosReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	name := req.NamespacedName
 	log := r.log.WithValues("name", name)
 
 	configMap := &corev1.ConfigMap{}
 
-	err := r.Get(context.TODO(), req.NamespacedName, configMap)
+	err := r.Get(ctx, req.NamespacedName, configMap)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			log.Info("ConfigMap not found. Ignoring since object must be deleted.", "item", req.NamespacedName)

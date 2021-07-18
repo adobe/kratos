@@ -29,7 +29,7 @@ var _ = Describe("MetricsFactory", func() {
 		}
 		_, err := metricsFactory.GetMetricsFetcher(scaleMetric)
 
-		Expect(err).ToNot(BeNil(), "unknown metric type should result in error")
+		Expect(err).NotTo(BeNil(), "unknown metric type should result in error")
 	})
 
 	It("Prometheus fetcher type", func() {

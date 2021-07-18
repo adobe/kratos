@@ -63,7 +63,7 @@ var _ = Describe("ReplicaCalculator", func() {
 
 		_, err := replicaCalculator.CalculateReplicas(1, noRequestedResources, scaleMetric, nil)
 
-		Expect(err).ToNot(BeNil(), "not implemented metric target should result in error")
+		Expect(err).NotTo(BeNil(), "not implemented metric target should result in error")
 	})
 
 	It("Prometheus target value calculator", func() {
@@ -112,7 +112,7 @@ var _ = Describe("ReplicaCalculator", func() {
 		}
 		_, err := replicaCalculator.CalculateReplicas(1, noRequestedResources, scaleMetric, metrics)
 
-		Expect(err).ToNot(BeNil(), "should fail proposal for pods without requested resources")
+		Expect(err).NotTo(BeNil(), "should fail proposal for pods without requested resources")
 	})
 
 	It("Resource target - value calculator", func() {

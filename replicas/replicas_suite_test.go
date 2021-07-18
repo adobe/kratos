@@ -16,20 +16,17 @@ package replicas
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"sigs.k8s.io/controller-runtime/pkg/envtest/printer"
 	"testing"
 )
 
 func TestReplicas(t *testing.T) {
 	RegisterFailHandler(Fail)
 
-	RunSpecsWithDefaultAndCustomReporters(t,
-		"Replicas Suite",
-		[]Reporter{printer.NewlineReporter{}})
+	RunSpecs(t, "Replicas Suite")
 }
 
-var _ = BeforeSuite(func(done Done) {
-	close(done)
+var _ = BeforeSuite(func() {
+
 }, 60)
 
 var _ = AfterSuite(func() {

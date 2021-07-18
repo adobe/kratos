@@ -107,7 +107,7 @@ var _ = Describe("ResourceFetcher", func() {
 		}
 		res, err := fetcher.Fetch(scaleMetric, namespace, labels.Everything())
 
-		Expect(res, err).ToNot(BeEmpty(), "get all namespaced metrics should return result")
+		Expect(res, err).NotTo(BeEmpty(), "get all namespaced metrics should return result")
 	})
 
 	It("CPU resource", func() {
@@ -119,7 +119,7 @@ var _ = Describe("ResourceFetcher", func() {
 		}
 		res, err := fetcher.Fetch(scaleMetric, namespace, labels.Everything())
 
-		Expect(res, err).ToNot(BeEmpty(), "get all namespaced metrics should return result")
+		Expect(res, err).NotTo(BeEmpty(), "get all namespaced metrics should return result")
 	})
 
 	It("Memory resource", func() {
@@ -130,7 +130,7 @@ var _ = Describe("ResourceFetcher", func() {
 			}}
 		res, err := fetcher.Fetch(scaleMetric, namespace, labels.Everything())
 
-		Expect(res, err).ToNot(BeEmpty(), "get all namespaced metrics should return result")
+		Expect(res, err).NotTo(BeEmpty(), "get all namespaced metrics should return result")
 	})
 
 	It("Resource Metrics with selector", func() {
@@ -144,7 +144,7 @@ var _ = Describe("ResourceFetcher", func() {
 		})
 		res, err := fetcher.Fetch(scaleMetric, namespace, selector)
 
-		Expect(res, err).ToNot(BeEmpty(), "get metrics with selector should return result")
+		Expect(res, err).NotTo(BeEmpty(), "get metrics with selector should return result")
 		Expect(len(res)).To(Equal(int(numFakePods)), "get the expected number of metrics")
 	})
 })
