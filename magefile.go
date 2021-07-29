@@ -23,8 +23,8 @@ import (
 	// mage:import operator
 	"github.com/adobe/kratos/mage/operator"
 
-	// mage:import integration_tests
-	"github.com/adobe/kratos/mage/integration_tests"
+	// mage:import integrationTests
+	"github.com/adobe/kratos/mage/integrationTests"
 )
 
 // Cleans project
@@ -43,5 +43,5 @@ func Build() {
 
 // Run Integration Tests: `mage RunIntegrationTests`
 func RunIntegrationTests() {
-	mg.SerialDeps(integration_tests.Run)
+	mg.SerialDeps(integrationTests.Run)
 }

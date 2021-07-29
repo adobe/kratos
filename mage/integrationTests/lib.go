@@ -7,7 +7,7 @@
 // then your use, modification, or distribution of it requires the prior
 // written permission of Adobe.
 
-package integration_tests
+package integrationTests
 
 import (
 	"encoding/json"
@@ -16,6 +16,7 @@ import (
 	"log"
 	"os"
 	"testing"
+
 	harness "github.com/kudobuilder/kuttl/pkg/apis/testharness/v1beta1"
 	"github.com/kudobuilder/kuttl/pkg/test"
 	testutils "github.com/kudobuilder/kuttl/pkg/test/utils"
@@ -26,7 +27,7 @@ func Run() error {
 
 	options := harness.TestSuite{}
 
-	configPath := "tests/integration/integration-tests.yaml"
+	configPath := "tests/integration/integrationTests.yaml"
 	testToRun := "test"
 
 	// If a config is not set and kuttl-test.yaml exists, set configPath to kuttl-test.yaml.
@@ -55,7 +56,7 @@ func Run() error {
 			}
 		}
 	}
-	
+
 	testutils.RunTests("kuttl", testToRun, options.Parallel, func(t *testing.T) {
 		harness := test.Harness{
 			TestSuite: options,
