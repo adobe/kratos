@@ -27,13 +27,13 @@ import (
 	"github.com/adobe/kratos/mage/integrationTests"
 )
 
-// Cleans project
+// Clean Cleans project
 func Clean() {
 	//mg.Deps(operator.Clean)
 	mg.Deps(operator.Clean, helm.Clean)
 }
 
-// Build code, docker image and helm chart
+// BUild Builds code, docker image and helm chart
 func Build() {
 	mg.SerialDeps(operator.Build)
 	mg.SerialDeps(helm.PackageChart)
@@ -41,7 +41,7 @@ func Build() {
 	mg.SerialDeps(dockerutils.PushImage)
 }
 
-// Run Integration Tests: `mage RunIntegrationTests`
+// RunIntegrationTests Runs Integration Tests using KUTTL
 func RunIntegrationTests() {
-	mg.SerialDeps(integrationTests.Run)
+	mg.SerialDeps(integrationTests.RunIntegrationTests)
 }

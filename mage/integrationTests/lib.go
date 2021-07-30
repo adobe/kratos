@@ -20,10 +20,11 @@ import (
 	harness "github.com/kudobuilder/kuttl/pkg/apis/testharness/v1beta1"
 	"github.com/kudobuilder/kuttl/pkg/test"
 	testutils "github.com/kudobuilder/kuttl/pkg/test/utils"
+	// mage:import utils
 )
 
-// Run Integration Tests `mage integration_tests:run`
-func Run() error {
+// RunIntegrationTests Runs Integration Tests using KUTTL
+func RunIntegrationTests() error {
 
 	options := harness.TestSuite{}
 

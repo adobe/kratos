@@ -10,11 +10,11 @@ commands:
 - command: helm install test-vm vm/victoria-metrics-single
   timeout: 120
   namespaced: true
-- command: mage operator:run
+- command: go run main.go -namespaces=default -metrics-addr=":8081"
   background: true
   ignoreFailure: false
-  skipLogOutput: true
-  timeout: 240
+  skipLogOutput: false
+  timeout: 120
 testDirs:
 - tests/integration
 artifactsDir: tests/artifacts
