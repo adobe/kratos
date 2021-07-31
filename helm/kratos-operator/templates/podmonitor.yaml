@@ -9,7 +9,7 @@ metadata:
 spec:
   podMetricsEndpoints:
   - interval: 30s
-    port: {{ .Values.commandLineArgs.metrics-addr | trimPrefix ":" }}
+    port: {{ index .Values.commandLineArgs "metrics-addr" | trimPrefix ":" | int }}
     path: {{ .Values.prometheus.path }}
     metricRelabelings: {}
     relabelings: {}
