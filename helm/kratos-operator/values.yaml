@@ -19,7 +19,6 @@ image:
 
 prometheus:
   path: /metrics
-  port: 8080
   # Whether to use a podmonitor or not.
   podmonitor: true
   labels:
