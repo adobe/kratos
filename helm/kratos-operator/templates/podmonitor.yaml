@@ -1,0 +1,22 @@
+{{- if eq .Values.prometheus.podmonitor true -}}
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: kratos-operator.podmonitor
+  namespace: {{ template "kratos-operator.namespace" . }}
+  labels:
+{{ include "kratos-operator.prometheusLabels" . | indent 4 }}
+spec:
+  podMetricsEndpoints:
+  - interval: 30s
+    port: {{ index .Values.commandLineArgs "metrics-addr" | trimPrefix ":" | int }}
+    path: {{ .Values.prometheus.path }}
+    metricRelabelings: {}
+    relabelings: {}
+  namespaceSelector:
+    matchNames:
+      - {{ template "kratos-operator.namespace" . }}
+  selector:
+    matchLabels:
+      app: {{ template "kratos-operator.name" . }}
+{{ end }}
