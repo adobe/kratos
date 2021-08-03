@@ -23,8 +23,8 @@ import (
 	// mage:import operator
 	"github.com/adobe/kratos/mage/operator"
 
-	// mage:import integrationTests
-	"github.com/adobe/kratos/mage/integrationTests"
+	// mage:import
+	_ "github.com/adobe/kratos/mage/integrationTests"
 )
 
 // Cleans project
@@ -39,9 +39,4 @@ func Build() {
 	mg.SerialDeps(helm.PackageChart)
 	mg.SerialDeps(dockerutils.BuildImage)
 	mg.SerialDeps(dockerutils.PushImage)
-}
-
-// Runs Integration Tests using KUTTL
-func RunIntegrationTests() {
-	mg.SerialDeps(integrationTests.RunIntegrationTests)
 }
