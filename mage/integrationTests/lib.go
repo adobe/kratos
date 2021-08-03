@@ -11,10 +11,8 @@ package integrationTests
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
-	"os"
 	"testing"
 
 	harness "github.com/kudobuilder/kuttl/pkg/apis/testharness/v1beta1"
@@ -31,30 +29,18 @@ func RunIntegrationTests() error {
 	configPath := "tests/integration/integrationTests.yaml"
 	testToRun := "test"
 
-	// If a config is not set and kuttl-test.yaml exists, set configPath to kuttl-test.yaml.
-	if configPath == "" {
-		if _, err := os.Stat("kuttl-test.yaml"); err == nil {
-			configPath = "kuttl-test.yaml"
-		} else {
-			return errors.New("kuttl-test.yaml not found, provide arguments indicating the tests to load")
-		}
+	objects, err := testutils.LoadYAMLFromFile(configPath)
+	if err != nil {
+		return err
 	}
 
-	// Load the configuration YAML into options.
-	if configPath != "" {
-		objects, err := testutils.LoadYAMLFromFile(configPath)
-		if err != nil {
-			return err
-		}
+	for _, obj := range objects {
+		kind := obj.GetObjectKind().GroupVersionKind().Kind
 
-		for _, obj := range objects {
-			kind := obj.GetObjectKind().GroupVersionKind().Kind
-
-			if kind == "TestSuite" {
-				options = *obj.(*harness.TestSuite)
-			} else {
-				log.Println(fmt.Errorf("unknown object type: %s", kind))
-			}
+		if kind == "TestSuite" {
+			options = *obj.(*harness.TestSuite)
+		} else {
+			log.Println(fmt.Errorf("unknown object type: %s", kind))
 		}
 	}
 
