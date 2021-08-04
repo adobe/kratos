@@ -17,6 +17,15 @@ image:
   repository: adobe/kratos
   tag: v0.0.1
 
+prometheus:
+  path: /metrics
+  # Whether to use a podmonitor or not.
+  podmonitor: true
+  labels:
+    app: prometheus-operator
+    release: prometheus
+
+
 commandLineArgs:
   metrics-addr: ":8080"
   namespaces: ""

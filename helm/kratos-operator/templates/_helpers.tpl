@@ -47,6 +47,14 @@ heritage: {{ $.Release.Service | quote }}
 {{- end }}
 {{- end }}
 
+{{/* Generate promethues labels */}}
+{{- define "kratos-operator.prometheusLabels" }}
+{{ include "kratos-operator.labels" . }}
+{{- if .Values.prometheus.labels}}
+{{ toYaml .Values.prometheus.labels }}
+{{- end }}
+{{- end }}
+
 {{/*
 Allow the release namespace to be overridden for multi-namespace deployments in combined charts
 */}}
