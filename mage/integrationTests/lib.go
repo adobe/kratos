@@ -21,7 +21,7 @@ import (
 	// mage:import utils
 )
 
-// RunIntegrationTests Runs Integration Tests using KUTTL
+// Runs Integration Tests using KUTTL
 func RunIntegrationTests() error {
 
 	options := harness.TestSuite{}
