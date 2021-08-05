@@ -1,0 +1,46 @@
+apiVersion: scaling.core.adobe.com/v1alpha1
+kind: Kratos
+metadata:
+  name: basic-example
+spec:
+  algorithm:
+    type: hpa
+  minReplicas: 0
+  maxReplicas: 3
+  stabilizationWindowSeconds: 30
+  target:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nginx
+  metrics:
+    - type: Prometheus
+      prometheus:
+        metricQuery: ceil(sum(rate(nginx_server_requests[1m])))
+        prometheusEndpoint: "http://prometheus-prometheus-oper-prometheus.monitoring:9090"
+        target:
+          type: AverageValue
+          averageValue: 1000
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kratos-basic-example
+data:
+  kratosSpec: |-
+    algorithm:
+      type: hpa
+    minReplicas: 0
+    maxReplicas: 3
+    stabilizationWindowSeconds: 30
+    target:
+      apiVersion: apps/v1
+      kind: Deployment
+      name: nginx
+    metrics:
+      - type: Prometheus
+        prometheus:
+          metricQuery: ceil(sum(rate(nginx_server_requests[1m])))
+          prometheusEndpoint: "http://prometheus-prometheus-oper-prometheus.monitoring:9090"
+          target:
+            type: AverageValue
+            averageValue: 1000

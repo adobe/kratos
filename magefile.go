@@ -22,6 +22,9 @@ import (
 
 	// mage:import operator
 	"github.com/adobe/kratos/mage/operator"
+
+	// mage:import
+	_ "github.com/adobe/kratos/mage/integrationTests"
 )
 
 // Cleans project
